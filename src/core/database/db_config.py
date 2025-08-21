@@ -19,10 +19,10 @@ class DB_URL(BaseSettings):
 
     # -- API
 
-    DB_HOST: str
-    DB_PORT: int
     DB_USER: str
     DB_PASSWORD: str
+    DB_HOST: str
+    DB_PORT: int
     DB_NAME: str
 
     # --
@@ -38,7 +38,7 @@ class DB_URL(BaseSettings):
     def get_DB_URL_API(self) -> str:
         """Construct the full database connection URL string."""
 
-        return f"{self.dialect}://{self.DB_USER}:{self.DB_PASSWORD}@{self.DB_PORT}:{self.DB_PORT}/{self.DB_NAME}"
+        return f"{self.dialect}://{self.DB_USER}:{self.DB_PASSWORD}@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"
 
 
 db_url = DB_URL()

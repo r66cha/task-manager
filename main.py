@@ -7,9 +7,9 @@ import uvicorn
 
 # --
 
-APP = "src.api.server:app"
+APP = "src.api.v1.server:app"
 HOST = "0.0.0.0"
-PORT = 8080
+PORT = 8000
 
 # --
 

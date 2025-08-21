@@ -1,8 +1,9 @@
 services:
-  task-manager:
-    build: .
+  pg:
+    image: postgres
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
     ports:
-      - '8000:8000'
-    volumes:
-      - ./app:/app/app
-    restart: unless-stopped
+      - '5432:5432'

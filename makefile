@@ -15,3 +15,7 @@ alembic-revision:
 
 alembic-upgrade:
 	alembic upgrade head
+
+
+run:
+	uv run main.py

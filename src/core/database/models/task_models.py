@@ -3,12 +3,11 @@
 # -- Imports
 
 import uuid
-from sqlalchemy import Integer, String, Enum as SqlEnum
+from sqlalchemy import Integer, String, String, Enum as SqlEnum
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 from sqlalchemy.dialects.postgresql import JSONB
 from src.core.database.mixin.mx import IdIntPkMixin
 from sqlalchemy.dialects.postgresql import UUID
-from typing import String
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:

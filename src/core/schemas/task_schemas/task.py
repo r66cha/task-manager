@@ -2,9 +2,12 @@
 
 # -- Imports
 
+from fastapi import Form
 from pydantic import BaseModel, Field
 from typing import Optional
 import enum
+from uuid import UUID
+
 
 # -- Exports
 
@@ -38,8 +41,18 @@ class TaskStatus(str, enum.Enum):
 
 
 class TaskBase(BaseModel):
-    title: str = Field(..., example=TITLE_EXAMPLE)
-    description: Optional[str] = Field("", example=DESCRIPTION_EXAMPLE)
+    title: str
+    description: Optional[str] = ""
+
+    @classmethod
+    def as_form(
+        cls,
+        title: str = Form(..., example=TITLE_EXAMPLE),
+        description: str = Form("", example=DESCRIPTION_EXAMPLE),
+    ):
+        return cls(title=title, description=description)
+
+    # python-multipart
 
 
 class TaskCreate(TaskBase):
@@ -53,8 +66,7 @@ class TaskSchema(BaseModel):
 
 
 class TaskOut(TaskBase):
-    id: str
+    id: UUID
     status: TaskStatus
 
-    class Config:
-        orm_mode = True
+    model_config = {"from_attributes": True}
