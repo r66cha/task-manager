@@ -19,3 +19,6 @@ alembic-upgrade:
 
 run:
 	uv run main.py
+
+client-run:
+	uv run -m src.api.v1.client.task_client

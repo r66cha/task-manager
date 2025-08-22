@@ -1,9 +1,9 @@
-"""Database models module"""
+"""Модели БД."""
 
 # -- Imports
 
 import uuid
-from sqlalchemy import Integer, String, String, Enum as SqlEnum
+from sqlalchemy import String, String, Enum as SqlEnum
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 from sqlalchemy.dialects.postgresql import JSONB
 from src.core.database.mixin.mx import IdIntPkMixin
@@ -45,7 +45,3 @@ class Task(Base, IdIntPkMixin):
         default=TaskStatus.created,
         nullable=True,
     )
-
-    @classmethod
-    def get_db(cls, session: "AsyncSession"):
-        """Returns an instance of TaskDatabaseClass."""

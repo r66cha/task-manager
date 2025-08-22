@@ -1,4 +1,4 @@
-"""CRUD module"""
+"""CRUD"""
 
 # --- Imports
 
@@ -8,7 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from src.core.database.models import Task
 from src.core.schemas.task_schemas import TaskOut, TaskBase, TaskStatus
 from uuid import UUID
-from fastapi import HTTPException
+from fastapi import HTTPException, status
 
 
 # -- Exports
@@ -60,7 +60,9 @@ class TaskCRUD:
             task = result.scalar_one_or_none()
 
             if not task:
-                raise HTTPException(status_code=404, detail="Task not found")
+                raise HTTPException(
+                    status_code=status.HTTP_404_NOT_FOUND, detail="Task not found"
+                )
 
             task.title = task_title
             task.description = task_description
@@ -70,6 +72,8 @@ class TaskCRUD:
 
             return task
 
+        except HTTPException as http_exc:
+            log.error("HTTPException: %s", http_exc)
         except Exception as e:
             log.error("Exception: %s", e)
 
@@ -91,9 +95,8 @@ class TaskCRUD:
             task.status = task_status
 
             await session.commit()
-            await session.refresh(task)
 
-            return task
+            return task.status.value
 
         except Exception as e:
             log.error("Exception: %s", e)
@@ -104,20 +107,17 @@ class TaskCRUD:
         task_uuid: UUID,
     ):
 
-        try:
+        result = await session.execute(select(Task).where(Task.id == task_uuid))
 
-            result = await session.execute(select(Task).where(Task.id == task_uuid))
-            task = result.scalar_one_or_none()
-            return task
-
-        except Exception as e:
-            log.error("Exception: %s", e)
+        task = result.scalar_one_or_none()
+        if not task:
+            raise HTTPException(status_code=404, detail=f"Task {task_uuid} not found")
+        return task
 
     async def get_all_tasks(
         self,
         session: AsyncSession,
-    ):
-
+    ) -> list:
         try:
 
             result = await session.execute(select(Task))
@@ -133,21 +133,16 @@ class TaskCRUD:
         task_uuid: UUID,
     ) -> bool:
 
-        try:
+        deleted = await session.execute(select(Task).where(Task.id == task_uuid))
+        task = deleted.scalar_one_or_none()
 
-            result = await session.execute(select(Task).where(Task.id == task_uuid))
-            task = result.scalar_one_or_none()
+        if not task:
+            raise HTTPException(status_code=404, detail=f"Task {task_uuid} not found")
 
-            if not task:
-                return False
+        await session.delete(task)
+        await session.commit()
 
-            await session.delete(task)
-            await session.commit()
-
-            return True
-
-        except Exception as e:
-            log.error("Exception: %s", e)
+        return True
 
 
 async def get_task_crud():

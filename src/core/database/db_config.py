@@ -1,4 +1,4 @@
-"""Database config."""
+"""Конфигурация БД."""
 
 # -- Imports
 
@@ -13,8 +13,7 @@ __all__ = ["db_url"]
 
 class DB_URL(BaseSettings):
     """
-    Pydantic settings class for configuring database connection parameters.\n
-    Reads values from an environment file and builds a complete async database URL.
+    Класс настроек Pydantic для настройки параметров подключения к базе данных.
     """
 
     # -- API
@@ -36,7 +35,7 @@ class DB_URL(BaseSettings):
 
     @property
     def get_DB_URL_API(self) -> str:
-        """Construct the full database connection URL string."""
+        """Создайте полную строку URL-адреса подключения к базе данных."""
 
         return f"{self.dialect}://{self.DB_USER}:{self.DB_PASSWORD}@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"
 

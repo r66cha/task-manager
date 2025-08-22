@@ -13,20 +13,15 @@ from uuid import UUID
 
 __all__ = [
     "TaskStatus",
-    "TaskSchema",
     "TaskBase",
-    "TaskCreate",
     "TaskOut",
 ]
 
 # -- Constants
 
-CREATED = "created"
-IN_PROGRESS = "in_progress"
-COMPLETED = "completed"
-
-TITLE_EXAMPLE = "Купить продукты"
-DESCRIPTION_EXAMPLE = "Молоко, Хлеб, Яйца"
+CREATED = "Создано."
+IN_PROGRESS = "В процессе..."
+COMPLETED = "Выполнил!"
 
 # -- Enums
 
@@ -47,22 +42,12 @@ class TaskBase(BaseModel):
     @classmethod
     def as_form(
         cls,
-        title: str = Form(..., example=TITLE_EXAMPLE),
-        description: str = Form("", example=DESCRIPTION_EXAMPLE),
+        title: str = Form(..., description="Заголовок таски"),
+        description: str = Form("", description="Описание таски"),
     ):
         return cls(title=title, description=description)
 
     # python-multipart
-
-
-class TaskCreate(TaskBase):
-    pass
-
-
-class TaskSchema(BaseModel):
-    title: Optional[str] = Field(None, example=TITLE_EXAMPLE)
-    description: Optional[str] = Field(None, example=DESCRIPTION_EXAMPLE)
-    status: Optional[TaskStatus] = Field(None, example=TaskStatus.in_progress)
 
 
 class TaskOut(TaskBase):
