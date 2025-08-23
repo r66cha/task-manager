@@ -39,16 +39,6 @@ class TaskBase(BaseModel):
     title: str
     description: Optional[str] = ""
 
-    @classmethod
-    def as_form(
-        cls,
-        title: str = Form(..., description="Заголовок таски"),
-        description: str = Form("", description="Описание таски"),
-    ):
-        return cls(title=title, description=description)
-
-    # python-multipart
-
 
 class TaskOut(TaskBase):
     id: UUID

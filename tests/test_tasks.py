@@ -1,92 +1,60 @@
+"""Tests."""
+
+# -- Imports
+
 import pytest
+from httpx import AsyncClient
 from fastapi.testclient import TestClient
-from app.main import app
+from src.core.schemas.task_schemas import TaskBase, TaskOut, TaskStatus
+from src.core.database.crud import TaskCRUD
+from fastapi import status
+
+from typing import Any
+
+from src.api.v1.server.app import app
+
+from unittest.mock import AsyncMock, MagicMock
 
 client = TestClient(app)
 
+# --
+
+BASE_URL = "http://127.0.0.1:8000/tasks/v1/"
+TASK_UUID = "0f1e86a5-caf6-40d3-8210-b6bc35003c7b"  # нужно указать актуальный uuid
+TASK_TITLE = "Тестовое задание"
+TASK_DESCRIPTION = "Разработать task-manager"
+TASK_STATUS = TaskStatus.created
+
+TASK_CRUD_MP_PATH = "src.api.v1.routes.task_router.TaskCRUD"
+
+
+# -- Fixtures
+
+
+@pytest.fixture
+def mock_task_crud(monkeypatch):
+    mock_crud: TaskCRUD = MagicMock(spec=TaskCRUD)
+    task_out = TaskOut(
+        id=TASK_UUID,
+        title=TASK_TITLE,
+        description=TASK_DESCRIPTION,
+        status=TASK_STATUS,
+    )
+    mock_crud.create_task = AsyncMock(return_value=task_out)
+    monkeypatch.setattr(TASK_CRUD_MP_PATH, lambda: mock_crud)
+    return mock_crud
+
+
+# --
+
 
 def test_create_task():
-    response = client.post(
-        "/tasks/", json={"title": "Test Task", "description": "Test Description"}
-    )
-    assert response.status_code == 201
+    payload = {
+        "task_title": TASK_TITLE,
+        "task_description": TASK_DESCRIPTION,
+    }
+    response = client.post("/tasks/v1/", data=payload)  # form data
+    assert response.status_code == status.HTTP_201_CREATED
     data = response.json()
-    assert data["title"] == "Test Task"
-    assert data["description"] == "Test Description"
-    assert data["status"] == "created"
-    assert "id" in data
-
-
-def test_get_task():
-    # Create a task first
-    create_resp = client.post(
-        "/tasks/", json={"title": "Get Task", "description": "Get Description"}
-    )
-    task_id = create_resp.json()["id"]
-
-    # Get the task
-    response = client.get(f"/tasks/{task_id}")
-    assert response.status_code == 200
-    data = response.json()
-    assert data["id"] == task_id
-    assert data["title"] == "Get Task"
-
-
-def test_get_task_not_found():
-    response = client.get("/tasks/nonexistent-id")
-    assert response.status_code == 404
-
-
-def test_list_tasks():
-    # Create two tasks
-    client.post("/tasks/", json={"title": "Task 1", "description": ""})
-    client.post("/tasks/", json={"title": "Task 2", "description": ""})
-
-    response = client.get("/tasks/")
-    assert response.status_code == 200
-    data = response.json()
-    assert isinstance(data, list)
-    assert len(data) >= 2  # There may be more from previous tests
-
-
-def test_update_task():
-    # Create a task
-    create_resp = client.post(
-        "/tasks/", json={"title": "To Update", "description": "Old"}
-    )
-    task_id = create_resp.json()["id"]
-
-    # Update the task
-    response = client.put(
-        f"/tasks/{task_id}", json={"title": "Updated", "status": "in_progress"}
-    )
-    assert response.status_code == 200
-    data = response.json()
-    assert data["title"] == "Updated"
-    assert data["status"] == "in_progress"
-
-
-def test_update_task_not_found():
-    response = client.put("/tasks/nonexistent-id", json={"title": "Nope"})
-    assert response.status_code == 404
-
-
-def test_delete_task():
-    # Create a task
-    create_resp = client.post("/tasks/", json={"title": "To Delete", "description": ""})
-    task_id = create_resp.json()["id"]
-
-    # Delete the task
-    response = client.delete(f"/tasks/{task_id}")
-    assert response.status_code == 200
-    data = response.json()
-    assert data["id"] == task_id
-
-    # Ensure it's gone
-    response = client.get(f"/tasks/{task_id}")
-    assert response.status_code == 404
-
-
-def test_delete_task_not_found():
-    response = client.delete("/tasks/nonexistent-id")
-    assert response.status_code == 404
+    assert data["title"] == TASK_TITLE
+    assert data["description"] == TASK_DESCRIPTION

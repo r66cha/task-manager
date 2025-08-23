@@ -22,3 +22,6 @@ run:
 
 client-run:
 	uv run -m src.api.v1.client.task_client
+
+test:
+	pytest -vv

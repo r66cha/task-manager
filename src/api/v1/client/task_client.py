@@ -12,7 +12,6 @@ from uuid import UUID
 # --
 
 BASE_URL = "http://127.0.0.1:8000/tasks/v1/"
-
 TASK_UUID = "0f1e86a5-caf6-40d3-8210-b6bc35003c7b"  # нужно указать актуальный uuid
 TASK_TITLE = "Тестовое задание"
 TASK_DESCRIPTION = "Разработать task-manager"
@@ -27,14 +26,15 @@ log = logging.getLogger(__name__)
 async def create_task():
     async with httpx.AsyncClient(base_url=BASE_URL) as client:
         payload = {
-            "title": TASK_TITLE,
-            "description": TASK_DESCRIPTION,
+            "task_title": TASK_TITLE,
+            "task_description": TASK_DESCRIPTION,
         }
         response = await client.post(
             headers={"Content-Type": "application/x-www-form-urlencoded"},
             url="/",
             data=payload,
         )
+        response.raise_for_status()
         task = TaskOut(**response.json())
         log.info(
             "Создана таска: %s | Статус: %s",
@@ -131,7 +131,7 @@ async def main():
         "get_all_task": get_all_task,
         "delete_task": delete_task,
     }
-    action_name = "get_task"
+    action_name = "create_task"
 
     await actions[action_name]()
 

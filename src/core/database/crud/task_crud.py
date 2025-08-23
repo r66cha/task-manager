@@ -31,19 +31,15 @@ class TaskCRUD:
     async def create_task(
         self,
         session: AsyncSession,
-        task_data: TaskBase,
+        task_title: str,
+        task_description: str,
     ) -> TaskOut:
 
-        try:
-
-            task = Task(**task_data.model_dump())
-            session.add(task)
-            await session.commit()
-            await session.refresh(task)
-            return TaskOut.model_validate(task)
-
-        except Exception as e:
-            log.error("Exception: %s", e)
+        task = Task(title=task_title, description=task_description)
+        session.add(task)
+        await session.commit()
+        await session.refresh(task)
+        return TaskOut.model_validate(task)
 
     async def update_task(
         self,
@@ -54,28 +50,22 @@ class TaskCRUD:
         task_status: TaskStatus,
     ) -> TaskOut:
 
-        try:
+        result = await session.execute(select(Task).where(Task.id == task_uuid))
+        task = result.scalar_one_or_none()
 
-            result = await session.execute(select(Task).where(Task.id == task_uuid))
-            task = result.scalar_one_or_none()
+        if not task:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Task not found",
+            )
 
-            if not task:
-                raise HTTPException(
-                    status_code=status.HTTP_404_NOT_FOUND, detail="Task not found"
-                )
+        task.title = task_title
+        task.description = task_description
+        task.status = task_status
 
-            task.title = task_title
-            task.description = task_description
-            task.status = task_status
+        await session.commit()
 
-            await session.commit()
-
-            return task
-
-        except HTTPException as http_exc:
-            log.error("HTTPException: %s", http_exc)
-        except Exception as e:
-            log.error("Exception: %s", e)
+        return task
 
     async def update_task_status(
         self,
@@ -84,22 +74,20 @@ class TaskCRUD:
         task_status: TaskStatus,
     ) -> TaskOut:
 
-        try:
+        result = await session.execute(select(Task).where(Task.id == task_uuid))
+        task = result.scalar_one_or_none()
 
-            result = await session.execute(select(Task).where(Task.id == task_uuid))
-            task = result.scalar_one_or_none()
+        if not task:
+            raise HTTPException(
+                status_code=404,
+                detail="Task not found",
+            )
 
-            if not task:
-                raise HTTPException(status_code=404, detail="Task not found")
+        task.status = task_status
 
-            task.status = task_status
+        await session.commit()
 
-            await session.commit()
-
-            return task.status.value
-
-        except Exception as e:
-            log.error("Exception: %s", e)
+        return task.status.value
 
     async def get_task(
         self,
@@ -110,22 +98,23 @@ class TaskCRUD:
         result = await session.execute(select(Task).where(Task.id == task_uuid))
 
         task = result.scalar_one_or_none()
+
         if not task:
-            raise HTTPException(status_code=404, detail=f"Task {task_uuid} not found")
+            raise HTTPException(
+                status_code=404,
+                detail=f"Task {task_uuid} not found",
+            )
+
         return task
 
     async def get_all_tasks(
         self,
         session: AsyncSession,
     ) -> list:
-        try:
 
-            result = await session.execute(select(Task))
-            tasks = result.scalars().all()
-            return tasks
-
-        except Exception as e:
-            log.error("Exception: %s", e)
+        result = await session.execute(select(Task))
+        tasks = result.scalars().all()
+        return tasks
 
     async def delete_task(
         self,
