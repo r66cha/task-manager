@@ -91,7 +91,7 @@ async def update_status(
     """Обновляет статус таски."""
 
     new_status = await task_crud.update_task_status(session, task_uuid, task_status)
-    return {f"Статус таски {task_uuid} изменен на {new_status}!"}
+    return {"message": f"Статус таски {task_uuid} изменен на {new_status}!"}
 
 
 @tr.get(
@@ -125,7 +125,7 @@ async def get_task(
 
 @tr.delete(
     path="/delete/{task_uuid}",
-    name="get task",
+    name="delete task",
 )
 async def delete_task(
     session: Annotated[AsyncSession, Depends(db_manager.get_session)],
@@ -135,4 +135,4 @@ async def delete_task(
     """Удаляет таску по uuid."""
 
     await task_crud.delete_task(session, task_uuid)
-    return {"message": f"Task {task_uuid} deleted successfully"}
+    return {"message": f"Таска {task_uuid} успешно удалена!"}

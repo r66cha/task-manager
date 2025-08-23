@@ -126,12 +126,13 @@ class TaskCRUD:
         task = deleted.scalar_one_or_none()
 
         if not task:
-            raise HTTPException(status_code=404, detail=f"Task {task_uuid} not found")
+            raise HTTPException(
+                status_code=404,
+                detail=f"Task {task_uuid} not found",
+            )
 
         await session.delete(task)
         await session.commit()
-
-        return True
 
 
 async def get_task_crud():
