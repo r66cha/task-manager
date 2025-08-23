@@ -15,6 +15,9 @@ from src.api.v1.server.app import app
 
 from unittest.mock import AsyncMock, MagicMock
 
+from src.api.v1.server.routers.task_router import get_task_crud
+
+
 client = TestClient(app)
 
 # --
@@ -25,7 +28,7 @@ TASK_TITLE = "Тестовое задание"
 TASK_DESCRIPTION = "Разработать task-manager"
 TASK_STATUS = TaskStatus.created
 
-TASK_CRUD_MP_PATH = "src.api.v1.routes.task_router.TaskCRUD"
+TASK_CRUD_MP_PATH = "src.api.v1.server.routers.task_router.TaskCRUD"
 
 
 # -- Fixtures
@@ -48,13 +51,35 @@ def mock_task_crud(monkeypatch):
 # --
 
 
-def test_create_task():
+def test_create(mock_task_crud):
+
+    app.dependency_overrides[get_task_crud] = lambda: mock_task_crud
+
     payload = {
         "task_title": TASK_TITLE,
         "task_description": TASK_DESCRIPTION,
     }
-    response = client.post("/tasks/v1/", data=payload)  # form data
+    response = client.post("/tasks/v1/", data=payload)
     assert response.status_code == status.HTTP_201_CREATED
     data = response.json()
     assert data["title"] == TASK_TITLE
     assert data["description"] == TASK_DESCRIPTION
+    assert data["status"] == TASK_STATUS
+
+    app.dependency_overrides = {}
+
+
+# def test_update(mock_task_crud):
+#     payload = {
+#         "task_title": TASK_UUID,
+#         "task_title": TASK_TITLE,
+#         "task_description": TASK_DESCRIPTION,
+#         "task_description": TASK_DESCRIPTION,
+#     }
+#     response = client.put(f"/tasks/v1/update/{TASK_UUID}", data=payload)
+#     assert response.status_code == status.HTTP_200_OK
+#     data = response.json()
+#     assert data["id"] == TASK_UUID
+#     assert data["title"] == TASK_TITLE
+#     assert data["description"] == TASK_DESCRIPTION
+#     assert data["status"] == TASK_STATUS

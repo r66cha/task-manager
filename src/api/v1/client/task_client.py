@@ -23,7 +23,7 @@ log = logging.getLogger(__name__)
 # --
 
 
-async def create_task():
+async def create():
     async with httpx.AsyncClient(base_url=BASE_URL) as client:
         payload = {
             "task_title": TASK_TITLE,
@@ -43,7 +43,7 @@ async def create_task():
         )
 
 
-async def update_task():
+async def update():
     async with httpx.AsyncClient(base_url=BASE_URL) as client:
 
         payload = {
@@ -67,7 +67,7 @@ async def update_task():
         )
 
 
-async def update_task_status():
+async def update_status():
     async with httpx.AsyncClient(base_url=BASE_URL) as client:
 
         payload = {
@@ -98,7 +98,7 @@ async def get_task():
         )
 
 
-async def get_all_task():
+async def get_all():
     async with httpx.AsyncClient(base_url=BASE_URL) as client:
         response = await client.get(
             headers={"Content-Type": "application/x-www-form-urlencoded"},
@@ -108,7 +108,7 @@ async def get_all_task():
         log.info("Список тасок: %s", tasks)
 
 
-async def delete_task():
+async def delete():
     async with httpx.AsyncClient(base_url=BASE_URL) as client:
         response = await client.delete(
             headers={"Content-Type": "application/x-www-form-urlencoded"},
@@ -124,14 +124,14 @@ async def delete_task():
 async def main():
     conf_logging()
     actions = {
-        "create_task": create_task,
-        "update_task": update_task,
-        "update_task_status": update_task_status,
+        "create": create,
+        "update": update,
+        "update_status": update_status,
         "get_task": get_task,
-        "get_all_task": get_all_task,
-        "delete_task": delete_task,
+        "get_all": get_all,
+        "delete": delete,
     }
-    action_name = "create_task"
+    action_name = "create"
 
     await actions[action_name]()
 
