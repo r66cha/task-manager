@@ -26,4 +26,4 @@ docker-compose up --build -d
 
 ---
 
-API будет доступен по адресу [http://localhost:8000](http://localhost:8000)/docs
+- Swagger UI (документация): [http://localhost:8000/docs](http://localhost:8000/docs)
