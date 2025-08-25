@@ -3,3 +3,7 @@ __pycache__/
 .venv/
 venv/
 .env
+*.ex
+*.exs
+ands.py
+ands2.py

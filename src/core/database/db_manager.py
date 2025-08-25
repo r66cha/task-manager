@@ -35,7 +35,6 @@ class DatabaseManager:
         await self.engine.dispose()
         log.info("Ядро базы данных удалено")
 
-    # contextmanager use
     async def get_session(self) -> AsyncGenerator[AsyncSession, None]:
         async with self.session_factory() as session:
             yield session

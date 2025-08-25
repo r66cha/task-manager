@@ -25,6 +25,7 @@ db_name = os.getenv("DB_NAME")
 
 url_api = f"postgresql+psycopg2://{user}:{password}@{host}:{port}/{db_name}"
 
+
 # --
 
 

@@ -29,7 +29,7 @@ class DB_URL(BaseSettings):
     dialect: str = "postgresql+asyncpg"
 
     model_config = SettingsConfigDict(
-        env_file=".env",
+        env_file=".env.dev",
         extra="ignore",
     )
 
