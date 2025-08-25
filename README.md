@@ -10,8 +10,20 @@
 
 ## Старт
 
+### Копируем
+
+```bash
+git clone https://github.com/r66cha/task-manager.git
+cd task-manager/
+code .
+```
+
+### Запускаем
+
 ```bash
 docker-compose up --build -d
 ```
+
+---
 
 API будет доступен по адресу [http://localhost:8000](http://localhost:8000).
