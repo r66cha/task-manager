@@ -7,3 +7,4 @@ venv/
 *.exs
 ands.py
 ands2.py
+.pytest_cache/
