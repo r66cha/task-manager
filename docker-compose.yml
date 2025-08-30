@@ -1,21 +1,38 @@
 services:
   pg:
-    image: postgres
+    image: postgres:16.0
+    container_name: pg_task_manager
     environment:
       POSTGRES_DB: ${DB_NAME}
       POSTGRES_USER: ${DB_USER}
       POSTGRES_PASSWORD: ${DB_PASSWORD}
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U $${DB_USER} -d $${DB_NAME} || exit 1']
+      interval: 30s
+      timeout: 5s
+      retries: 3
     ports:
       - '5432:5432'
+    volumes:
+      - db-data:/var/lib/postgresql/data
 
   app:
     build:
       context: .
       dockerfile: Dockerfile
     container_name: task_manager
+    healthcheck:
+      test: ['CMD-SHELL', 'curl -f http://localhost:8000/health || exit 1']
+      interval: 30s
+      timeout: 5s
+      retries: 3
     ports:
       - '8000:8000'
     env_file:
       - .env
     depends_on:
-      - pg
+      pg:
+        condition: service_healthy
+
+volumes:
+  db-data:
